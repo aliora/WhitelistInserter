@@ -3,72 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>whitelist inserter</title>
+    <title>Whitelist Inserter</title>
     <style>
+        /* Genel Stil ve Koyu Tema Ayarları */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Inter', sans-serif; /* Modern bir font */
+            margin: 0;
+            padding: 20px;
+            background-color: #22272e; /* GitHub koyu tema arka planı */
+            color: #adbac7; /* Açık gri metin rengi */
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 95vh;
+            min-height: 100vh; /* Tam ekran yüksekliği */
+            box-sizing: border-box; /* Padding'i kutu modeline dahil et */
         }
+
         h1 {
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 2.2em;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            color: #c9d1d9; /* Başlık için biraz daha açık renk */
+            margin-bottom: 35px;
+            font-size: 2.5em;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            text-align: center;
         }
+
+        /* Ana Konteyner */
         .container {
-            width: 80%;
-            max-width: 900px;
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            margin-bottom: 30px;
+            width: 90%;
+            max-width: 950px; /* Biraz daha geniş */
+            background-color: #2d333b; /* Konteyner arka planı */
+            padding: 30px;
+            border-radius: 12px; /* Daha yuvarlak köşeler */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3); /* Daha belirgin gölge */
+            margin-bottom: 40px;
+            border: 1px solid #444c56; /* Hafif kenarlık */
         }
+
+        /* Bilgi Notları */
+        .info-notes {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #444c56; /* Koyu temaya uygun çizgi */
+        }
+        .info-notes p {
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .info-notes p:last-child {
+            margin-bottom: 0;
+        }
+        .info-notes .red-note {
+            color: #f85149; /* Kırmızı uyarı */
+            font-weight: bold;
+        }
+        .info-notes .orange-note {
+            color: #e3b341; /* Turuncu uyarı */
+        }
+
+        /* Her Bir Alan Satırı */
         .item-row {
             display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            align-items: flex-start; /* Checkbox ve label hizalaması */
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #3e444d; /* Daha ince ve koyu çizgi */
         }
-        .item-row:last-child {
+        .item-row:last-of-type { /* Son item-row için border'ı kaldır */
             border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
         }
+
+        /* Checkbox Konteyneri */
         .checkbox-container {
-            margin-right: 20px;
-            padding-top: 5px;
+            margin-right: 25px;
+            padding-top: 8px; /* Checkbox'ı dikeyde ortala */
+            flex-shrink: 0; /* Küçülmesini engelle */
         }
         .checkbox-container input[type="checkbox"] {
-            transform: scale(1.6);
-            accent-color: #424242;
-            margin-top: 2px;
+            transform: scale(1.7); /* Biraz daha büyük */
+            accent-color: #58a6ff; /* GitHub mavisi */
+            margin-top: 0;
+            cursor: pointer;
         }
+
+        /* Kolon Etiket Grubu */
         .column-label-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            min-width: 180px;
-            margin-right: 15px;
+            min-width: 190px; /* Biraz daha geniş */
+            margin-right: 20px;
+            flex-shrink: 0; /* Küçülmesini engelle */
         }
         .column-name {
-            font-weight: bold;
-            color: #333;
-            font-size: 1.1em;
-            margin-bottom: 3px;
+            font-weight: 600; /* Daha belirgin */
+            color: #c9d1d9;
+            font-size: 1.15em;
+            margin-bottom: 5px;
         }
         .column-description {
-            font-size: 0.9em;
-            color: #666;
-            font-style: italic;
+            font-size: 0.85em;
+            color: #8b949e; /* Daha soluk gri */
+            font-style: normal; /* İtalik olmasın */
         }
+
+        /* Metin Alanı Konteyneri */
         .text-area-container {
             flex-grow: 1;
             display: flex;
@@ -76,112 +118,196 @@
         }
         textarea {
             width: 100%;
-            min-height: 60px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            min-height: 70px; /* Biraz daha uzun */
+            padding: 12px;
+            border: 1px solid #444c56; /* Koyu temaya uygun kenarlık */
+            border-radius: 8px; /* Daha yuvarlak */
             box-sizing: border-box;
             resize: vertical;
-            font-size: 15px;
-            line-height: 1.5;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            font-size: 1em;
+            line-height: 1.6;
+            background-color: #1c2128; /* Koyu input arka planı */
+            color: #adbac7; /* Metin rengi */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        textarea::placeholder {
+            color: #6e7681; /* Placeholder rengi */
         }
         textarea:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+            border-color: #58a6ff; /* Odaklandığında GitHub mavisi */
+            box-shadow: 0 0 0 2px rgba(88,166,255,0.3); /* Hafif parlama */
         }
-        .now-time-checkbox {
-            margin-left: 20px;
+
+        /* "Şimdiki Zaman" ve "İlk Satırı Tekrarla" Checkbox'ları */
+        .now-time-checkbox, .repeat-first-checkbox {
+            margin-left: 25px;
             display: flex;
             align-items: center;
             white-space: nowrap;
+            flex-shrink: 0;
         }
-        .now-time-checkbox label {
+        .now-time-checkbox label, .repeat-first-checkbox label {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             cursor: pointer;
         }
-        .now-time-checkbox span {
-            font-size: 1em;
-            color: #555;
+        .now-time-checkbox input[type="checkbox"], .repeat-first-checkbox input[type="checkbox"] {
+            transform: scale(1.4);
+            accent-color: #f85149; /* Kırmızı renk */
         }
-        .repeat-first-checkbox {
-            margin-left: 20px;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
+        .now-time-checkbox span, .repeat-first-checkbox span {
+            font-size: 0.95em;
+            color: #adbac7;
         }
-        .repeat-first-checkbox label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .repeat-first-checkbox input[type="checkbox"],.now-time-checkbox input[type="checkbox"] {
-            transform: scale(1.3);
-            accent-color: rgb(182, 0, 0);
-        }
-        .repeat-first-checkbox span {
-            font-size: 0.9em;
-            color: #555;
-        }
+
+        /* Buton Stili */
         .create-button {
-            padding: 14px 30px;
-            font-size: 19px;
-            background-color: #28a745;
+            padding: 16px 35px;
+            font-size: 1.2em;
+            font-weight: 600;
+            background-color: #2ea043; /* GitHub yeşili */
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,123,255,0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(46,160,67,0.3);
+            margin-top: 20px; /* Buton ile konteyner arasına boşluk */
         }
         .create-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
+            background-color: #2c973e; /* Hover rengi */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(46,160,67,0.4);
         }
         .create-button:active {
             transform: translateY(0);
-            background-color: #1e7e34;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            background-color: #268a35; /* Active rengi */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
+
         /* SQL Çıktısı Alanı */
         #sqlOutputContainer {
-            margin-top: 30px;
-            width: 80%;
-            max-width: 900px;
-            background-color: #333;
-            color: #f8f8f2;
-            padding: 15px 15px 15px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            font-family: 'Consolas', 'Monaco', monospace;
+            margin-top: 40px;
+            width: 90%;
+            max-width: 950px;
+            background-color: #1c2128; /* Koyu kod alanı arka planı */
+            color: #c9d1d9; /* Kod metin rengi */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            font-family: 'Fira Code', 'Consolas', 'Monaco', monospace; /* Kod fontu */
             font-size: 0.9em;
-            white-space: pre-wrap; /* Uzun satırları otomatik sarar */
+            /* white-space: pre-wrap; /* Bu özellik artık #sqlOutput üzerinde */
             word-break: break-all; /* Uzun kelimeleri böler */
             position: relative;
+            border: 1px solid #444c56;
+            min-height: 120px; /* Minimum yükseklik */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
         #sqlOutput {
-            overflow-x: auto; /* Yatay kaydırma çubuğu */
+            /* overflow-x: auto; /* Yatay kaydırma çubuğu - KALDIRILDI */
             max-height: 250px; /* Maksimum yükseklik */
+            padding-top: 10px; /* Kopyala butonu için boşluk */
+            width: 100%; /* İçeriğin genişliği */
+            box-sizing: border-box;
+            color: #8b949e; /* Placeholder metin rengi */
+            font-style: italic;
+            white-space: pre-wrap; /* Uzun satırları otomatik sarar */
+            overflow-wrap: break-word; /* Uzun kelimeleri satır sonlarında kırar */
+        }
+
+        /* Kopyala Butonu */
+        #copySqlBtn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background-color: #444c56; /* Koyu gri buton */
+            color: #c9d1d9;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            cursor: pointer;
+            z-index: 2;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #copySqlBtn:hover {
+            background-color: #586069;
+            transform: translateY(-1px);
+        }
+        #copySqlBtn:active {
+            transform: translateY(0);
+            background-color: #3b424d;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive Tasarım */
+        @media (max-width: 768px) {
+            .container, #sqlOutputContainer {
+                width: 95%;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+                margin-bottom: 25px;
+            }
+            .item-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .checkbox-container, .column-label-group, 
+            .now-time-checkbox, .repeat-first-checkbox {
+                margin-right: 0;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            .column-label-group {
+                min-width: unset;
+            }
+            .text-area-container {
+                margin-bottom: 15px;
+            }
+            .now-time-checkbox, .repeat-first-checkbox {
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+            .create-button {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1.1em;
+            }
+            #copySqlBtn {
+                position: static; /* Mobil görünümde statik konuma al */
+                width: 100%;
+                margin-top: 15px;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            #sqlOutput {
+                max-height: 180px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <h1>Veritabanı Alanları</h1>
+    <h1>Whitelist Inserter</h1>
 
     <div class="container">
-        <div class="item-row"></div>
-        <div >
-            <p style="color: red;"> Not: Excel'den kopyalanan her satır, sistem tarafından ayrı bir INSERT komutu olarak işlenir. Lütfen verileri satır satır yapıştırınız ve tüm satırların aynı sayıda veri içerdiğinden emin olunuz.</p>
-            <p style="color: orange;">created_at, created_by_id, park_id, description gibi sabit alanlar tek bir satır olarak girilebilir; bu değerler, diğer tüm verilerle birlikte otomatik olarak her INSERT komutuna dahil edilecektir.</p>
+        <div class="info-notes">
+            <p class="red-note">Not: Excel'den kopyalanan her satır, sistem tarafından ayrı bir INSERT komutu olarak işlenir. Lütfen verileri satır satır yapıştırınız ve tüm satırların aynı sayıda veri içerdiğinden emin olunuz.</p>
+            <p class="orange-note">created_at, created_by_id, park_id, description gibi sabit alanlar tek bir satır olarak girilebilir; bu değerler, diğer tüm verilerle birlikte otomatik olarak her INSERT komutuna dahil edilecektir.</p>
         </div>
-        <div class="item-row"></div>
+        
         <div class="item-row">
-
             <div class="checkbox-container">
                 <input type="checkbox" id="created_at_check">
             </div>
@@ -314,20 +440,20 @@
                 </label>
             </div>
         </div>
-
-
-
-        </div>
+    </div>
 
     <button class="create-button" id="createButton">SQL Sorgusu Oluştur</button>
 
     <div id="sqlOutputContainer">
-        <button id="copySqlBtn" title="Kopyala" style="position:absolute; right:30px; margin-top:5px; background:#444; color:#fff; border:none; border-radius:5px; padding:6px 14px; font-size:0.95em; cursor:pointer; z-index:2; transition:background 0.2s;">Kopyala</button>
-        <pre id="sqlOutput" style="margin-top:8px;">Oluşturulan SQL Sorgusu Burada Belirecektir.</pre>
+        <button id="copySqlBtn" title="Kopyala">Kopyala</button>
+        <pre id="sqlOutput">Bu proje sadece görsel bir demo amaçlıdır. SQL sorgusu oluşturma işlevi devre dışıdır.</pre>
     </div>
 
     <script>
         
+    const copySqlBtn = document.getElementById('copySqlBtn');
+    const sqlOutput = document.getElementById('sqlOutput');
+
     if (copySqlBtn) {
         copySqlBtn.addEventListener('click', () => {
             const sql = sqlOutput.textContent;
@@ -342,25 +468,15 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     const createButton = document.getElementById('createButton');
-    const sqlOutput = document.getElementById('sqlOutput');
 
     const fieldsConfig = {
-        id: { checkboxId: 'id_check', textareaId: 'id_text', type: 'int unsigned' },
-        sort_order: { checkboxId: 'sort_order_check', textareaId: 'sort_order_text', type: 'int' },
         created_at: { checkboxId: 'created_at_check', textareaId: 'created_at_text', type: 'datetime', special: 'now' },
         created_by_id: { checkboxId: 'created_by_id_check', textareaId: 'created_by_id_text', type: 'int', hasRepeatOption: true },
-        updated_at: { type: 'datetime', special: 'now' },
-        updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int' },
-        deleted_at: { checkboxId: 'deleted_at_check', textareaId: 'deleted_at_text', type: 'datetime' },
         plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true },
         park_id: { checkboxId: 'park_id_check', textareaId: 'park_id_text', type: 'int', hasRepeatOption: true },
         description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', special: 'concat_malik', hasRepeatOption: true },
-        expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime' },
-        payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int' },
         phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', multiLine: true },
-        payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)' },
         name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', multiLine: true },
-        company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)' },
         company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true }
     };
 
@@ -380,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let multiLineValuesByField = {}; // Çoklu satırlı alanların tüm değerleri
         let maxRows = 0;
 
-        // Önce çoklu satırlı alanları (plate, name) işle
+        // Önce çoklu satırlı alanları (plate, name, phone) işle
         for (const fieldName in fieldsConfig) {
             const config = fieldsConfig[fieldName];
             if (config.multiLine) {
@@ -393,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         maxRows = lines.length;
                     }
                 } else if (textarea && checkbox?.checked && textarea.value.trim() === '') {
-                    multiLineValuesByField[fieldName] = [''];
+                    multiLineValuesByField[fieldName] = ['']; // Checkbox işaretli ama boşsa, boş bir satır ekle
                     if (maxRows === 0) maxRows = 1;
                 }
             }
@@ -406,11 +522,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const config = fieldsConfig[fieldName];
                 const checkbox = config.checkboxId ? document.getElementById(config.checkboxId) : null;
                 const textarea = config.textareaId ? document.getElementById(config.textareaId) : null;
-                if ((checkbox && checkbox.checked) || (textarea && textarea.value.trim() !== '') || (fieldName === 'updated_at')) {
+                if ((checkbox && checkbox.checked) || (textarea && textarea.value.trim() !== '')) {
                     hasValidField = true;
                     break;
                 }
             }
+            // created_at "Şimdiki Zaman" seçiliyse de geçerli say
+            if (!hasValidField && createdAtNowChecked) {
+                hasValidField = true;
+            }
+
             if (hasValidField) {
                 maxRows = 1;
             } else {
@@ -434,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let includeInRow = false;
 
                 if (config.multiLine) {
-                    // Çoklu satırlı alanlar (plate, name)
+                    // Çoklu satırlı alanlar (plate, name, phone)
                     const multiValue = multiLineValuesByField[fieldName] ? (multiLineValuesByField[fieldName][i] || '') : '';
                     
                     if ((checkbox && checkbox.checked) || multiValue !== '') {
@@ -450,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if ((checkbox && checkbox.checked) || (textarea && textarea.value.trim() !== '')) {
                         includeInRow = true;
                         
-                        const isRepeatMode = repeatCheckbox ? repeatCheckbox.checked : true;
+                        const isRepeatMode = repeatCheckbox ? repeatCheckbox.checked : true; // repeatCheckbox yoksa varsayılan olarak true
                         let textValue = '';
                         
                         if (isRepeatMode) {
@@ -483,52 +604,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                 } else {
-                    // Tamamen sabit alanlar (created_at, updated_at, phone, etc.)
-                    if (checkbox && !checkbox.checked) {
-                        if (fieldName === 'created_at' && createdAtNowChecked) {
+                    // created_at gibi tekil, sabit veya "Şimdiki Zaman" seçeneği olan alanlar
+                    if (fieldName === 'created_at') {
+                        if (createdAtNowChecked) {
                             includeInRow = true;
                             valueToUse = 'NOW()';
-                        } else if (fieldName === 'updated_at') {
+                        } else if (checkbox && checkbox.checked && textarea && textarea.value.trim() !== '') {
                             includeInRow = true;
-                            valueToUse = 'NOW()';
-                        } else if (fieldName === 'created_at' && textarea && textarea.value.trim() === '') {
-                            includeInRow = false;
+                            valueToUse = `'${escapeSqlString(textarea.value.trim())}'`;
+                        } else if (checkbox && checkbox.checked && textarea && textarea.value.trim() === '') {
+                            // Checkbox işaretli ama boşsa yine de NULL veya boş string olarak ekle
+                            includeInRow = true;
+                            valueToUse = `NULL`; // datetime için NULL daha uygun
                         } else {
+                            // Checkbox işaretli değilse ve 'Şimdiki Zaman' seçili değilse dahil etme
                             continue;
                         }
                     } else {
-                        includeInRow = true;
-
-                        if (config.special === 'now') {
-                            if (fieldName === 'created_at' && createdAtNowChecked) {
-                                valueToUse = 'NOW()';
-                            } else if (textarea && textarea.value.trim() !== '') {
-                                valueToUse = `'${escapeSqlString(textarea.value.trim())}'`;
-                            } else if (fieldName === 'created_at' && textarea && textarea.value.trim() === '') {
-                                includeInRow = false;
-                            } else if (fieldName === 'updated_at') {
-                                valueToUse = 'NOW()';
-                            }
-                        } else if (textarea) {
-                            if (textarea.value.trim() !== '') {
+                        // Diğer sabit alanlar (şu an için HTML'de yok, ama olsaydı buraya düşerdi)
+                        if (checkbox && checkbox.checked) {
+                            includeInRow = true;
+                            if (textarea && textarea.value.trim() !== '') {
                                 valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `'${escapeSqlString(textarea.value.trim())}'` : textarea.value.trim();
                             } else {
-                                if (checkbox && checkbox.checked) {
-                                    valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `''` : `NULL`;
-                                } else {
-                                    includeInRow = false;
-                                }
+                                valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `''` : `NULL`;
                             }
-                        } else if (fieldName === 'updated_at') {
-                            valueToUse = 'NOW()';
-                            includeInRow = true;
                         } else {
-                            includeInRow = false;
+                            continue;
                         }
                     }
                 }
 
-                if (includeInRow && valueToUse !== '') {
+                if (includeInRow) { // valueToUse boş string olsa bile dahil et (e.g. boş string olarak eklenmesi gerekiyorsa)
                     currentRowData[fieldName] = valueToUse;
                     columnsSet.add(fieldName);
                 }
@@ -538,9 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const finalColumns = Array.from(columnsSet);
         const desiredOrder = [
-            'created_at', 'created_by_id', 'updated_at', 'updated_by_id', 'deleted_at',
-            'park_id', 'plate', 'name', 'company_name', 'company', 'description', 'expiry_at',
-            'payment_status', 'phone', 'payment_amount', 'id', 'sort_order'
+            'created_at', 'created_by_id', 'park_id', 'plate', 'name', 
+            'phone', 'company_name', 'description'
         ];
         const sortedColumns = desiredOrder.filter(col => finalColumns.includes(col));
 
@@ -552,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let allValuesStrings = [];
         allRowsData.forEach(rowData => {
-            const valuesForThisRow = sortedColumns.map(col => rowData[col] || 'NULL');
+            const valuesForThisRow = sortedColumns.map(col => rowData[col] !== undefined ? rowData[col] : 'NULL'); // undefined ise NULL kullan
             allValuesStrings.push(`(${valuesForThisRow.join(', ')})`);
         });
 
