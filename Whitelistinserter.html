@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>whitelist inserter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 95vh;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .container {
+            width: 80%;
+            max-width: 900px;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+        .item-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .checkbox-container {
+            margin-right: 20px;
+            padding-top: 5px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            transform: scale(1.6);
+            accent-color: #007bff;
+            margin-top: 2px;
+        }
+        .column-label-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 180px;
+            margin-right: 15px;
+        }
+        .column-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 3px;
+        }
+        .column-description {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+        .text-area-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+            font-size: 15px;
+            line-height: 1.5;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+        }
+        .now-time-checkbox {
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .now-time-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .now-time-checkbox input[type="checkbox"] {
+            transform: scale(1.3);
+            accent-color: #17a2b8;
+        }
+        .now-time-checkbox span {
+            font-size: 1em;
+            color: #555;
+        }
+        .create-button {
+            padding: 14px 30px;
+            font-size: 19px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,123,255,0.2);
+        }
+        .create-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        .create-button:active {
+            transform: translateY(0);
+            background-color: #1e7e34;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        /* SQL Çıktısı Alanı */
+        #sqlOutputContainer {
+            margin-top: 30px;
+            width: 80%;
+            max-width: 900px;
+            background-color: #333;
+            color: #f8f8f2;
+            padding: 15px 15px 15px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap; /* Uzun satırları otomatik sarar */
+            word-break: break-all; /* Uzun kelimeleri böler */
+            position: relative;
+        }
+        #sqlOutput {
+            overflow-x: auto; /* Yatay kaydırma çubuğu */
+            max-height: 250px; /* Maksimum yükseklik */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Veritabanı Alanları</h1>
+
+    <div class="container">
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="created_at_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">created_at</div>
+                <div class="column-description"></div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="created_at_text" placeholder="YYYY-MM-DD HH:MM:SS formatında giriniz..."></textarea>
+            </div>
+            <div class="now-time-checkbox">
+                <label>
+                    <input type="checkbox" id="created_at_now_check">
+                    <span>Şimdiki Zaman</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="created_by_id_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">created_by_id</div>
+                <div class="column-description">(Oluşturan kişi ID)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="created_by_id_text" placeholder="Örn: 10675"></textarea>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="park_id_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">park_id</div>
+                <div class="column-description">(Parkın ID'si)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="park_id_text" placeholder="Örn: 77"></textarea>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="plate_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">plate</div>
+                <div class="column-description">(Plaka)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="plate_text" placeholder="Örn: 34GTY132"></textarea>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="name_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">name</div>
+                <div class="column-description">(Müşteri Adı)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="name_text" placeholder="Örn: EMRE"></textarea>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="company_name_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">company_name</div>
+                <div class="column-description">(Şirket Adı)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="company_name_text" placeholder="Örn: 4B PLAZA"></textarea>
+            </div>
+        </div>
+
+        <div class="item-row">
+            <div class="checkbox-container">
+                <input type="checkbox" id="description_check">
+            </div>
+            <div class="column-label-group">
+                <div class="column-name">description</div>
+                <div class="column-description">(Açıklama)</div>
+            </div>
+            <div class="text-area-container">
+                <textarea id="description_text" placeholder="Örn: Malik"></textarea>
+            </div>
+        </div>
+
+        </div>
+
+    <button class="create-button" id="createButton">SQL Sorgusu Oluştur</button>
+
+    <div id="sqlOutputContainer">
+        <button id="copySqlBtn" title="Kopyala" style="position:absolute; right:30px; margin-top:5px; background:#444; color:#fff; border:none; border-radius:5px; padding:6px 14px; font-size:0.95em; cursor:pointer; z-index:2; transition:background 0.2s;">Kopyala</button>
+        <pre id="sqlOutput" style="margin-top:8px;">Oluşturulan SQL Sorgusu Burada Belirecektir.</pre>
+    </div>
+
+    <script>
+        
+    if (copySqlBtn) {
+        copySqlBtn.addEventListener('click', () => {
+            const sql = sqlOutput.textContent;
+            if (sql && sql.trim() !== "" && sql !== "Oluşturulan SQL Sorgusu Burada Belirecektir.") {
+                navigator.clipboard.writeText(sql).then(() => {
+                    copySqlBtn.textContent = "Kopyalandı!";
+                    setTimeout(() => { copySqlBtn.textContent = "Kopyala"; }, 1200);
+                });
+            }
+        });
+    }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createButton = document.getElementById('createButton');
+    const sqlOutput = document.getElementById('sqlOutput');
+
+    const fieldsConfig = {
+        id: { checkboxId: 'id_check', textareaId: 'id_text', type: 'int unsigned' },
+        sort_order: { checkboxId: 'sort_order_check', textareaId: 'sort_order_text', type: 'int' },
+        created_at: { checkboxId: 'created_at_check', textareaId: 'created_at_text', type: 'datetime', special: 'now' },
+        created_by_id: { checkboxId: 'created_by_id_check', textareaId: 'created_by_id_text', type: 'int', allowSingleLineRepeat: true }, // Yeni: allowSingleLineRepeat
+        updated_at: { type: 'datetime', special: 'now' },
+        updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int' },
+        deleted_at: { checkboxId: 'deleted_at_check', textareaId: 'deleted_at_text', type: 'datetime' },
+        plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true },
+        park_id: { checkboxId: 'park_id_check', textareaId: 'park_id_text', type: 'int', allowSingleLineRepeat: true }, // Yeni: allowSingleLineRepeat
+        description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', special: 'concat_malik', allowSingleLineRepeat: true }, // Yeni: allowSingleLineRepeat
+        expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime' },
+        payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int' },
+        phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)' },
+        payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)' },
+        name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', multiLine: true },
+        company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)' },
+        company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', allowSingleLineRepeat: true } // Yeni: allowSingleLineRepeat
+    };
+
+    function escapeSqlString(str) {
+        if (typeof str !== 'string') {
+            return str;
+        }
+        return str.replace(/'/g, "''");
+    }
+
+    createButton.addEventListener('click', () => {
+        let columnsSet = new Set();
+        let allRowsData = [];
+
+        const createdAtNowChecked = document.getElementById('created_at_now_check') ? document.getElementById('created_at_now_check').checked : false;
+        
+        let multiLineValuesByField = {}; // Tüm çoklu satırlı girişler (orijinal halleri)
+        let singleLineValuesByField = {}; // Tek satırlık girilse bile tekrarlanacak alanlar
+
+        let plateLinesCount = 0; // Plate'in satır sayısı belirleyici olacak
+
+        // Plate alanını al ve satır sayısını belirle
+        const plateTextarea = document.getElementById('plate_text');
+        const plateCheckbox = document.getElementById('plate_check');
+        if (plateTextarea && (plateCheckbox?.checked || plateTextarea.value.trim() !== '')) {
+            const lines = plateTextarea.value.trim().split('\n').map(line => line.trim()).filter(line => line !== '');
+            multiLineValuesByField['plate'] = lines;
+            plateLinesCount = lines.length;
+        } else if (plateTextarea && plateCheckbox?.checked && plateTextarea.value.trim() === '') {
+             multiLineValuesByField['plate'] = ['']; // Checkbox işaretli ama boşsa, yine de 1 satır olsun
+             plateLinesCount = 1;
+        }
+
+        // maxRows'u plateLinesCount olarak ayarla. Eğer plate alanı hiç kullanılmayacaksa ve diğer multiLine alanlar varsa, onların max'ını al.
+        maxRows = plateLinesCount;
+        for (const fieldName in fieldsConfig) {
+             const config = fieldsConfig[fieldName];
+             if (config.multiLine && fieldName !== 'plate') {
+                 const textarea = document.getElementById(config.textareaId);
+                 if (textarea && (document.getElementById(config.checkboxId)?.checked || textarea.value.trim() !== '')) {
+                     const lines = textarea.value.trim().split('\n').map(line => line.trim()).filter(line => line !== '');
+                     multiLineValuesByField[fieldName] = lines;
+                     if (lines.length > maxRows) {
+                         maxRows = lines.length; // Diğer multiLine alanların satır sayısı plate'ten fazlaysa, max'ı al
+                     }
+                 } else if (textarea && document.getElementById(config.checkboxId)?.checked && textarea.value.trim() === '') {
+                     multiLineValuesByField[fieldName] = [''];
+                     if (maxRows === 0) maxRows = 1;
+                 }
+             }
+        }
+
+
+        // Eğer hiç multiLine girişi yoksa ama sabit bir alan seçiliyse, en az 1 satır oluştur
+        if (maxRows === 0) {
+            let hasValidFixedField = false;
+            for (const fieldName in fieldsConfig) {
+                const config = fieldsConfig[fieldName];
+                if (!config.multiLine && !config.allowSingleLineRepeat) { // Sadece tamamen sabit olanları kontrol et
+                    const checkbox = config.checkboxId ? document.getElementById(config.checkboxId) : null;
+                    const textarea = config.textareaId ? document.getElementById(config.textareaId) : null;
+                    if ((checkbox && checkbox.checked) || (textarea && textarea.value.trim() !== '') || (fieldName === 'updated_at')) {
+                        hasValidFixedField = true;
+                        break;
+                    }
+                }
+            }
+            if (hasValidFixedField) {
+                maxRows = 1;
+            } else {
+                sqlOutput.textContent = "Lütfen oluşturmak için en az bir alan seçin veya doldurun.";
+                sqlOutput.style.color = '#dc3545';
+                return;
+            }
+        }
+
+        // allowSingleLineRepeat özelliğine sahip alanların ilk satır değerlerini al
+        for (const fieldName in fieldsConfig) {
+            const config = fieldsConfig[fieldName];
+            if (config.allowSingleLineRepeat) {
+                const textarea = document.getElementById(config.textareaId);
+                const checkbox = document.getElementById(config.checkboxId);
+                if (textarea && (checkbox?.checked || textarea.value.trim() !== '')) {
+                    singleLineValuesByField[fieldName] = textarea.value.trim().split('\n')[0]?.trim() || ''; // Sadece ilk satırı al
+                } else if (textarea && checkbox?.checked && textarea.value.trim() === '') {
+                    singleLineValuesByField[fieldName] = ''; // Checkbox işaretli ve boşsa boş string
+                }
+            }
+        }
+
+
+        // Her bir değer satırı için döngü
+        for (let i = 0; i < maxRows; i++) {
+            let currentRowData = {};
+
+            for (const fieldName in fieldsConfig) {
+                const config = fieldsConfig[fieldName];
+                const checkbox = config.checkboxId ? document.getElementById(config.checkboxId) : null;
+                const textarea = config.textareaId ? document.getElementById(config.textareaId) : null;
+
+                let valueToUse = '';
+                let includeInRow = false;
+
+                if (config.multiLine) {
+                    // Çoklu satırlı alanlar (plate, name)
+                    // Plate'in satır sayısı belirleyici olduğu için, diğer çoklu satırlılar için de bu indeks kullanılır.
+                    // Eğer o alanda o indekste değer yoksa, boş string kullanılır.
+                    const multiValue = multiLineValuesByField[fieldName] ? (multiLineValuesByField[fieldName][i] || '') : '';
+                    
+                    if ((checkbox && checkbox.checked) || multiValue !== '') {
+                        includeInRow = true;
+                        if (config.special === 'concat_malik') {
+                             const descText = multiValue.trim();
+                             const malikPrefix = 'Malik';
+                             if (descText !== '') {
+                                 valueToUse = `CONCAT('${escapeSqlString(descText)} - ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                             } else {
+                                 valueToUse = `CONCAT('${escapeSqlString(malikPrefix)} - ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                             }
+                        } else {
+                            valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `'${escapeSqlString(multiValue)}'` : multiValue;
+                        }
+                    } else if (checkbox && checkbox.checked && multiValue === '') {
+                        includeInRow = true;
+                        valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `''` : `NULL`;
+                    }
+
+                } else if (config.allowSingleLineRepeat) {
+                    // Tek satır girilse bile plate satır sayısına göre tekrarlanacak alanlar (created_by_id, park_id, company_name, description)
+                    const singleValue = singleLineValuesByField[fieldName] || '';
+                    if ((checkbox && checkbox.checked) || singleValue !== '') {
+                         includeInRow = true;
+                         if (config.special === 'concat_malik') {
+                             const descText = singleValue.trim();
+                             const malikPrefix = 'Malik';
+                             if (descText !== '') {
+                                 valueToUse = `CONCAT('${escapeSqlString(descText)} - ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                             } else {
+                                 valueToUse = `CONCAT('${escapeSqlString(malikPrefix)} - ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                             }
+                         } else {
+                             valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `'${escapeSqlString(singleValue)}'` : singleValue;
+                         }
+                    } else if (checkbox && checkbox.checked && singleValue === '') {
+                         includeInRow = true;
+                         valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `''` : `NULL`;
+                    }
+                } else {
+                    // Tamamen sabit alanlar (created_at, updated_at, phone, etc.)
+                    if (checkbox && !checkbox.checked) {
+                        if (fieldName === 'created_at' && createdAtNowChecked) {
+                            includeInRow = true;
+                            valueToUse = 'NOW()';
+                        } else if (fieldName === 'updated_at') {
+                            includeInRow = true;
+                            valueToUse = 'NOW()';
+                        } else if (fieldName === 'created_at' && textarea && textarea.value.trim() === '') {
+                            // created_at manuel girişi boşsa ve şimdiki zaman seçili değilse atla
+                            includeInRow = false;
+                        } else {
+                            continue; // Checkbox işaretli değilse ve özel durum yoksa, bu alanı bu satıra dahil etme
+                        }
+                    } else {
+                        includeInRow = true;
+
+                        if (config.special === 'now') {
+                            if (fieldName === 'created_at' && createdAtNowChecked) {
+                                valueToUse = 'NOW()';
+                            } else if (textarea && textarea.value.trim() !== '') {
+                                valueToUse = `'${escapeSqlString(textarea.value.trim())}'`;
+                            } else if (fieldName === 'created_at' && textarea && textarea.value.trim() === '') {
+                                includeInRow = false; // Manuel tarih boşsa ve NOW() seçili değilse dahil etme
+                            } else if (fieldName === 'updated_at') {
+                                valueToUse = 'NOW()';
+                            }
+                        } else if (textarea) {
+                            if (textarea.value.trim() !== '') {
+                                valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `'${escapeSqlString(textarea.value.trim())}'` : textarea.value.trim();
+                            } else {
+                                if (checkbox && checkbox.checked) {
+                                    valueToUse = config.type.startsWith('varchar') || config.type === 'text' ? `''` : `NULL`;
+                                } else {
+                                    includeInRow = false;
+                                }
+                            }
+                        } else if (fieldName === 'updated_at') {
+                            valueToUse = 'NOW()';
+                            includeInRow = true;
+                        } else {
+                            includeInRow = false;
+                        }
+                    }
+                }
+
+                if (includeInRow && valueToUse !== '') { // valueToUse'in boş olmadığından emin ol
+                    currentRowData[fieldName] = valueToUse;
+                    columnsSet.add(fieldName);
+                }
+            }
+            allRowsData.push(currentRowData);
+        }
+
+        const finalColumns = Array.from(columnsSet);
+        const desiredOrder = [
+            'created_at', 'created_by_id', 'updated_at', 'updated_by_id', 'deleted_at',
+            'park_id', 'plate', 'name', 'company_name', 'company', 'description', 'expiry_at',
+            'payment_status', 'phone', 'payment_amount', 'id', 'sort_order'
+        ];
+        const sortedColumns = desiredOrder.filter(col => finalColumns.includes(col));
+
+        if (sortedColumns.length === 0) {
+            sqlOutput.textContent = "Hiç geçerli alan seçilmedi veya doldurulmadı.";
+            sqlOutput.style.color = '#dc3545';
+            return;
+        }
+
+        let allValuesStrings = [];
+        allRowsData.forEach(rowData => {
+            const valuesForThisRow = sortedColumns.map(col => rowData[col] || 'NULL');
+            allValuesStrings.push(`(${valuesForThisRow.join(', ')})`);
+        });
+
+        const sql = `INSERT INTO default_parking_whitelist (${sortedColumns.join(', ')}) VALUES ${allValuesStrings.join(', ')};`;
+        sqlOutput.textContent = sql;
+        sqlOutput.style.color = '#f8f8f2';
+
+        console.log(sql);
+    });
+});
+
+    </script>
+
+</body>
+</html>
