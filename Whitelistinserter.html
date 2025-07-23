@@ -197,12 +197,12 @@
         
         textarea {
             width: 100%;
-            min-height: 80px;
+            min-height: 100px; /* Yükseklik artırıldı */
             padding: 12px;
             border: 2px solid var(--border-color);
             border-radius: var(--border-radius);
             box-sizing: border-box;
-            resize: vertical;
+            resize: none; /* Yeniden boyutlandırma kapatıldı */
             font-size: 1em;
             line-height: 1.6;
             background-color: var(--bg-tertiary);
@@ -717,18 +717,18 @@
                 plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true, placeholder: 'Örn: 34GTY132', mandatory: true }, // Plate her zaman zorunlu ve tikli
                 
                 // Zorunlu olmayan alanlar
-                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...' },
-                name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: EMRE' },
-                company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 4B PLAZA' },
-                description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', special: 'concat_malik', hasRepeatOption: true, placeholder: 'Örn: Malik' },
-                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 1 (Ödendi), 0 (Ödenmedi)' },
-                phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 5551234567' },
-                payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)', hasRepeatOption: true, placeholder: 'Örn: 15.75' },
+                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, // Mandatory false
+                name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: EMRE', mandatory: false }, // Mandatory false
+                company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 4B PLAZA', mandatory: false }, // Mandatory false
+                description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', special: 'concat_malik', hasRepeatOption: true, placeholder: 'Örn: Malik', mandatory: false }, // Mandatory false
+                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 1 (Ödendi), 0 (Ödenmedi)', mandatory: false }, // Mandatory false
+                phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 5551234567', mandatory: false }, // Mandatory false
+                payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)', hasRepeatOption: true, placeholder: 'Örn: 15.75', mandatory: false }, // Mandatory false
                 
                 // Güncel kodda olmayan ancak fieldsConfig'de tanımlı olabilecekler (örnek olarak bırakıldı)
-                updated_at: { checkboxId: 'updated_at_check', textareaId: 'updated_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...' },
-                updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675' },
-                company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: A.Ş.' }
+                updated_at: { checkboxId: 'updated_at_check', textareaId: 'updated_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, // Mandatory false
+                updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: false }, // Mandatory false
+                company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: A.Ş.', mandatory: false } // Mandatory false
             };
 
             // SQL string değerlerini kaçış karakterleriyle düzenleme fonksiyonu
@@ -777,10 +777,11 @@
                 const plateTextarea = document.getElementById(fieldsConfig.plate.textareaId);
                 
                 // Tüm satırları al, trimle. Sondaki tamamen boş satırları at (kullanıcı fazla enter basmış olabilir)
+                // Ayrıca, sadece '-' içeren satırları da boş olarak kabul et.
                 let rawPlateLines = plateTextarea.value.split(/\r?\n/).map(line => line.trim()); 
                 
-                // Sondaki boş satırları temizle
-                while (rawPlateLines.length > 0 && rawPlateLines[rawPlateLines.length - 1] === '') {
+                // Sondaki boş veya sadece '-' içeren satırları temizle
+                while (rawPlateLines.length > 0 && (rawPlateLines[rawPlateLines.length - 1] === '' || rawPlateLines[rawPlateLines.length - 1] === '-')) {
                     rawPlateLines.pop();
                 }
 
@@ -816,9 +817,10 @@
                             // Değeri belirle
                             let currentLineValue = '';
                             if (fieldName === 'plate') {
-                                valueToProcess = plateLines[i]; // Plate satırları zaten trimlenmiş
-                                if (valueToProcess === '') { // Her bir plaka satırı boş olamaz
-                                    showErrorAndScroll(`Plaka alanı (satır ${i + 1}) boş bırakılamaz.`, plateTextarea);
+                                // Plate satırları zaten trimlenmiş ve boş/tire kontrolü yapılmış
+                                valueToProcess = plateLines[i]; 
+                                if (valueToProcess === '') { // Her bir plaka satırı boş olamaz (tire de dahil)
+                                    showErrorAndScroll(`Plaka alanı (satır ${i + 1}) zorunludur ve boş bırakılamaz.`, plateTextarea);
                                     hasValidationError = true;
                                     if (!firstErrorElement) firstErrorElement = plateTextarea;
                                     break; // İç döngüden çık
@@ -828,7 +830,9 @@
                                 if (nowCheckbox && nowCheckbox.checked) {
                                     valueToProcess = 'NOW()';
                                 } else if (repeatCheckbox && repeatCheckbox.checked) {
-                                    const firstLineValue = textarea.value.split(/\r?\n/)[0]?.trim() || ''; // İlk satırı da \r?\n ile al
+                                    const firstLineValueRaw = textarea.value.split(/\r?\n/)[0]?.trim() || '';
+                                    const firstLineValue = (firstLineValueRaw === '' || firstLineValueRaw === '-') ? '' : firstLineValueRaw; // İlk satır boş veya '-' ise boş kabul et
+                                    
                                     if (firstLineValue === '') { // Tekrarlanan ilk satır boşsa hata ver
                                         showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı için 'İlk Satırı Tekrarla' seçeneği işaretli ancak ilk satır boş bırakılamaz.`, textarea);
                                         hasValidationError = true;
@@ -840,37 +844,51 @@
                             } else {
                                 // Normal textarea girişi
                                 const allLines = textarea.value.split(/\r?\n/).map(line => line.trim());
-                                if (allLines.length === 1 && allLines[0] !== '') { // Tek satır girilmişse ve boş değilse, tüm satırlar için kullan
-                                    currentLineValue = allLines[0];
-                                } else if (allLines.length > 1 && allLines.length !== plateLinesCount) { // Birden fazla satır girilmişse ve plaka satır sayısıyla eşleşmiyorsa
+                                let effectiveValueForThisRow = '';
+
+                                if (allLines.length === 1) {
+                                    // Eğer tek satır girilmişse, bu değeri tüm satırlar için kullan
+                                    effectiveValueForThisRow = allLines[0];
+                                } else if (allLines.length > 1 && allLines.length !== plateLinesCount) {
+                                    // Eğer birden fazla satır girilmişse ve plaka satır sayısıyla eşleşmiyorsa hata ver
                                     showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı için girilen satır sayısı (${allLines.length}), plaka satır sayısı (${plateLinesCount}) ile eşleşmiyor.`, textarea);
                                     hasValidationError = true;
                                     if (!firstErrorElement) firstErrorElement = textarea;
                                     break; // İç döngüden çık
-                                } else { // Birden fazla satır girilmişse ve eşleşiyorsa veya boşsa
-                                    currentLineValue = allLines[i] || ''; // İlgili satırı al, yoksa boş string
+                                } else { // allLines.length > 1 && allLines.length === plateLinesCount
+                                    // Eğer birden fazla satır girilmişse ve eşleşiyorsa, ilgili satırı kullan
+                                    effectiveValueForThisRow = allLines[i] || '';
                                 }
 
-                                // Tarih alanları için "limitsiz" kontrolü
-                                if (config.type === 'datetime' && currentLineValue.toLowerCase() === 'limitsiz') {
+                                // Eğer satır sadece '-' ise veya boşsa, boş olarak kabul et
+                                if (effectiveValueForThisRow === '-' || effectiveValueForThisRow === '') {
+                                    effectiveValueForThisRow = '';
+                                }
+
+                                // created_at özel durumu: Şimdiki Zaman tikli değilse ve boşsa hata ver
+                                if (fieldName === 'created_at' && !nowCheckbox.checked && effectiveValueForThisRow === '') {
+                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz.`, textarea);
+                                    hasValidationError = true;
+                                    if (!firstErrorElement) firstErrorElement = textarea;
+                                    break;
+                                }
+                                // Tarih alanları için "limitsiz" kontrolü (zorunlu olmayanlar için)
+                                else if (config.type === 'datetime' && effectiveValueForThisRow.toLowerCase() === 'limitsiz') {
                                     valueToProcess = 'NULL'; // "limitsiz" ise NULL olarak ayarla
-                                } else if (currentLineValue === '') {
-                                    // Zorunlu alan boş bırakılamaz
-                                    if (isMandatory) {
-                                        showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz.`, textarea);
-                                        hasValidationError = true;
-                                        if (!firstErrorElement) firstErrorElement = textarea;
-                                        break; // İç döngüden çık
-                                    } 
-                                    // Zorunlu olmayan ancak tikli ve boş bırakılan alanlar da hata verir
-                                    else {
-                                        showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı tikli ancak boş bırakılamaz.`, textarea);
-                                        hasValidationError = true;
-                                        if (!firstErrorElement) firstErrorElement = textarea;
-                                        break; // İç döngüden çık
-                                    }
-                                } else {
-                                    valueToProcess = currentLineValue;
+                                } 
+                                // Zorunlu alanlar için boşluk kontrolü (plate ve created_at dışındaki zorunlular)
+                                else if (isMandatory && effectiveValueForThisRow === '') {
+                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz.`, textarea);
+                                    hasValidationError = true;
+                                    if (!firstErrorElement) firstErrorElement = textarea;
+                                    break;
+                                }
+                                // Zorunlu olmayan alanlar için boşluk kontrolü (NULL olarak geçecek)
+                                else if (!isMandatory && effectiveValueForThisRow === '') {
+                                    valueToProcess = 'NULL'; // Hata verme, NULL olarak işle
+                                }
+                                else {
+                                    valueToProcess = effectiveValueForThisRow;
                                 }
                             }
 
@@ -881,7 +899,10 @@
 
                             // SQL formatlaması
                             if (valueToProcess !== 'NOW()') { // NOW() özel bir fonksiyondur, tırnak içine alınmaz
-                                if (config.type.startsWith('varchar') || config.type === 'text' || config.type === 'datetime') {
+                                if (valueToProcess === 'NULL') { // Zaten NULL olarak ayarlandıysa tırnak ekleme
+                                    // Do nothing, already 'NULL'
+                                }
+                                else if (config.type.startsWith('varchar') || config.type === 'text' || config.type === 'datetime') {
                                     valueToProcess = `'${escapeSqlString(valueToProcess)}'`;
                                 } else if (config.type.startsWith('int')) {
                                     valueToProcess = parseInt(valueToProcess, 10);
