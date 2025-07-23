@@ -250,7 +250,7 @@
             accent-color: var(--accent-red);
         }
         
-        .now-time-checkbox span, .repeat-first-checkbox span {
+.now-time-checkbox span, .repeat-first-checkbox span {
             font-size: var(--font-size-md);
             color: var(--text-primary);
         }
@@ -308,7 +308,7 @@
         }
         
         #sqlOutput {
-            max-height: 250px;
+            /* max-height: 250px; */ /* Kaldırıldı, içeriğe göre büyüyecek */
             padding-top: var(--spacing-sm);
             width: 100%;
             box-sizing: border-box;
@@ -318,6 +318,9 @@
             overflow-wrap: break-word;
             text-align: left;
             padding-left: var(--spacing-sm);
+            /* Çıktı alanının içeriğe göre büyümesini sağlamak için */
+            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
+            flex-grow: 1; /* Konteynerin içinde esnek büyüme */
         }
 
         /* Kopyala Butonu */
@@ -559,7 +562,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="name_repeat_check" checked>
+                <input type="checkbox" id="name_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -582,7 +585,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="company_name_repeat_check" checked>
+                <input type="checkbox" id="company_name_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -605,7 +608,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="description_repeat_check" checked>
+                <input type="checkbox" id="description_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -628,7 +631,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="payment_status_repeat_check" checked>
+                <input type="checkbox" id="payment_status_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -651,7 +654,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="phone_repeat_check" checked>
+                <input type="checkbox" id="phone_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -674,7 +677,7 @@
         </div>
         <div class="repeat-first-checkbox">
             <label>
-                <input type="checkbox" id="payment_amount_repeat_check" checked>
+                <input type="checkbox" id="payment_amount_repeat_check"> <!-- Varsayılan olarak unchecked -->
                 <span>İlk Satırı Tekrarla</span>
             </label>
         </div>
@@ -702,34 +705,64 @@
                 copySqlBtn.addEventListener('click', () => {
                     const sql = sqlOutput.textContent;
                     if (sql && sql.trim() !== "" && sql !== "Veri giriniz." && !sql.startsWith("Hata:")) {
-                        document.execCommand('copy');
+                        // Geçici bir textarea oluştur
+                        const tempTextArea = document.createElement('textarea');
+                        tempTextArea.value = sql;
+                        document.body.appendChild(tempTextArea);
+                        tempTextArea.select(); // Metni seç
+                        document.execCommand('copy'); // Kopyala
+                        document.body.removeChild(tempTextArea); // Geçici textarea'yı kaldır
+
                         copySqlBtn.textContent = "Kopyalandı!";
                         setTimeout(() => { copySqlBtn.textContent = "Kopyala"; }, 1200);
                     }
                 });
             }
 
-            // Alanların konfigürasyonu ve zorunluluk durumları
+            // Alanların konfigürasyonu ve varsayılan durumları
             const fieldsConfig = {
                 created_at: { checkboxId: 'created_at_check', textareaId: 'created_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: true },
                 created_by_id: { checkboxId: 'created_by_id_check', textareaId: 'created_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: true },
                 park_id: { checkboxId: 'park_id_check', textareaId: 'park_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 77', mandatory: true },
                 plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true, placeholder: 'Örn: 34GTY132', mandatory: true }, // Plate her zaman zorunlu ve tikli
                 
-                // Zorunlu olmayan alanlar
-                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, // Mandatory false
-                name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: EMRE', mandatory: false }, // Mandatory false
-                company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 4B PLAZA', mandatory: false }, // Mandatory false
-                description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', special: 'concat_malik', hasRepeatOption: true, placeholder: 'Örn: Malik', mandatory: false }, // Mandatory false
-                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 1 (Ödendi), 0 (Ödenmedi)', mandatory: false }, // Mandatory false
-                phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 5551234567', mandatory: false }, // Mandatory false
-                payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)', hasRepeatOption: true, placeholder: 'Örn: 15.75', mandatory: false }, // Mandatory false
+                // Zorunlu olmayan alanlar (varsayılan olarak unchecked)
+                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, 
+                name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: EMRE', mandatory: false }, 
+                company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 4B PLAZA', mandatory: false }, 
+                description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', hasRepeatOption: true, placeholder: 'Örn: Malik', mandatory: false }, 
+                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 1 (Ödendi), 0 (Ödenmedi)', mandatory: false }, 
+                phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 5551234567', mandatory: false }, 
+                payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)', hasRepeatOption: true, placeholder: 'Örn: 15.75', mandatory: false }, 
                 
                 // Güncel kodda olmayan ancak fieldsConfig'de tanımlı olabilecekler (örnek olarak bırakıldı)
-                updated_at: { checkboxId: 'updated_at_check', textareaId: 'updated_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, // Mandatory false
-                updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: false }, // Mandatory false
-                company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: A.Ş.', mandatory: false } // Mandatory false
+                updated_at: { checkboxId: 'updated_at_check', textareaId: 'updated_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, 
+                updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: false }, 
+                company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: A.Ş.', mandatory: false } 
             };
+
+            // HTML'deki checkbox'ların varsayılan durumlarını ayarla
+            for (const fieldName in fieldsConfig) {
+                const config = fieldsConfig[fieldName];
+                const checkbox = document.getElementById(config.checkboxId);
+                const repeatCheckbox = config.hasRepeatOption ? document.getElementById(fieldName + '_repeat_check') : null;
+                const nowCheckbox = config.special === 'now_datetime' ? document.getElementById(fieldName + '_now_check') : null;
+
+                if (checkbox) {
+                    checkbox.checked = config.mandatory; // Zorunlu olanlar checked
+                    checkbox.disabled = config.mandatory; // Zorunlu olanlar disabled
+                }
+                if (repeatCheckbox) {
+                    // created_by_id ve park_id için repeat checkbox'ı checked, diğerleri unchecked
+                    repeatCheckbox.checked = (fieldName === 'created_by_id' || fieldName === 'park_id');
+                }
+                if (nowCheckbox) {
+                    // created_at için now_check varsayılan olarak unchecked (kullanıcı manuel girecekse)
+                    // Diğer tarih alanları için de varsayılan unchecked
+                    nowCheckbox.checked = false; 
+                }
+            }
+
 
             // SQL string değerlerini kaçış karakterleriyle düzenleme fonksiyonu
             function escapeSqlString(str) {
@@ -809,6 +842,7 @@
                         let isFieldChecked = checkbox && checkbox.checked;
                         let isMandatory = config.mandatory;
                         let isSpecialOptionChecked = (nowCheckbox && nowCheckbox.checked) || (repeatCheckbox && repeatCheckbox.checked);
+                        let isSqlFunction = false; // Bu alanın değeri bir SQL fonksiyonu mu?
 
                         // Eğer alanın checkbox'ı tikli ise işleme al
                         if (isFieldChecked) {
@@ -829,6 +863,7 @@
                                 // Özel seçenek (Şimdiki Zaman veya İlk Satırı Tekrarla) işaretliyse
                                 if (nowCheckbox && nowCheckbox.checked) {
                                     valueToProcess = 'NOW()';
+                                    isSqlFunction = true; // NOW() bir SQL fonksiyonu
                                 } else if (repeatCheckbox && repeatCheckbox.checked) {
                                     const firstLineValueRaw = textarea.value.split(/\r?\n/)[0]?.trim() || '';
                                     const firstLineValue = (firstLineValueRaw === '' || firstLineValueRaw === '-') ? '' : firstLineValueRaw; // İlk satır boş veya '-' ise boş kabul et
@@ -872,7 +907,7 @@
                                     if (!firstErrorElement) firstErrorElement = textarea;
                                     break;
                                 }
-                                // Tarih alanları için "limitsiz" kontrolü (zorunlu olmayanlar için)
+                                // Tarih alanları için "limitsiz" kontrolü
                                 else if (config.type === 'datetime' && effectiveValueForThisRow.toLowerCase() === 'limitsiz') {
                                     valueToProcess = 'NULL'; // "limitsiz" ise NULL olarak ayarla
                                 } 
@@ -897,8 +932,19 @@
                                 textarea.classList.remove('error-border');
                             }
 
+                            // description alanı için özel işlem (burada valueToProcess zaten belirlenmiş olmalı)
+                            if (fieldName === 'description' && isFieldChecked) {
+                                if (valueToProcess === 'NULL' || valueToProcess === '') { // If it was determined as NULL or empty
+                                    valueToProcess = `DATE_FORMAT(NOW(), '%Y-%m-%d')`;
+                                } else {
+                                    valueToProcess = `CONCAT('${escapeSqlString(valueToProcess)} ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                                }
+                                isSqlFunction = true; // description için bu özel durum bir SQL fonksiyonu olarak işaretlenmeli
+                            }
+
                             // SQL formatlaması
-                            if (valueToProcess !== 'NOW()') { // NOW() özel bir fonksiyondur, tırnak içine alınmaz
+                            // Eğer değer bir SQL fonksiyonu ise tırnak içine alma
+                            if (!isSqlFunction) { 
                                 if (valueToProcess === 'NULL') { // Zaten NULL olarak ayarlandıysa tırnak ekleme
                                     // Do nothing, already 'NULL'
                                 }
