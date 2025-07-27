@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whitelist Inserter/Deleter</title>
+    <title>Whitelist Inserter</title>
     <style>
         /* CSS Değişkenleri - Tekrar Eden Değerler */
         :root {
@@ -119,13 +119,12 @@
         /* Her Bir Alan Satırı */
         .item-row {
             display: flex;
-            align-items: flex-start;
+            align-items: flex-start; /* Başlangıca hizalama */
             margin-bottom: var(--spacing-sm);
             padding-bottom: var(--spacing-sm);
             border-bottom: 2px solid #4d94ff;
         }
 
-        
         .item-row:last-of-type {
             border-bottom: none;
             margin-bottom: 0;
@@ -134,7 +133,7 @@
 
         /* Metin Alanı Konteyneri */
         .text-area-container {
-            flex-grow: 1;
+            flex-grow: 1; /* Mevcut alanda esnek büyüme */
             display: flex;
             flex-direction: column;
         }
@@ -151,11 +150,11 @@
             text-transform: uppercase;
         }
 
-        /* Checkbox Konteyneri */
+        /* Checkbox Konteyneri (Ana tikler için) */
         .checkbox-container {
             margin-right: var(--spacing-lg);
             padding-top: var(--spacing-lg);
-            flex-shrink: 0;
+            flex-shrink: 0; /* Küçülmesini engelle */
         }
         
         .checkbox-container input[type="checkbox"] {
@@ -172,7 +171,7 @@
             align-items: flex-start;
             min-width: 190px;
             margin-right: var(--spacing-lg);
-            flex-shrink: 0;
+            flex-shrink: 0; /* Küçülmesini engelle */
         }
         
         .column-name {
@@ -188,11 +187,11 @@
             font-style: normal;
         }
 
-        /* Metin Alanı Konteyneri */
-        .text-area-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+        /* Metin Alanı ve Seçenekleri Sarmalayıcısı */
+        .content-and-options-wrapper {
+            flex-grow: 1; /* Kalan tüm alanı kaplar */
+            display: flex; /* İçindekileri yatay sırala */
+            align-items: flex-start; /* Dikeyde başlangıca hizala */
         }
         
         textarea {
@@ -228,35 +227,63 @@
             box-shadow: 0 0 0 2px rgba(248, 81, 73, 0.5) !important;
         }
 
-        /* Ortak Checkbox Stilleri */
-        .now-time-checkbox, .repeat-first-checkbox {
-            margin-left: var(--spacing-xl);
+        /* Checkbox Seçenekleri Grubu (Metin kutusunun sağında dikey hizalanır) */
+        .checkbox-options-group {
+            display: flex;
+            flex-direction: column; /* İçindeki checkbox'ları dikey sırala */
+            gap: var(--spacing-sm); /* Aralarında boşluk bırak */
+            margin-left: var(--spacing-xl); /* Metin kutusu ile arasında boşluk */
+            flex-shrink: 0; /* Küçülmesini engelle */
+            padding-top: var(--spacing-lg); /* Checkbox'ları metin kutusunun tepesiyle hizala */
+        }
+
+        /* Ortak Özel Checkbox Stilleri (Şimdiki Zaman, İlk Satırı Tekrarla, Giriş Tipi) */
+        .now-time-checkbox, 
+        .repeat-first-checkbox,
+        .input-type-checkbox,
+        .remove-days-checkbox { 
             display: flex;
             align-items: center;
             white-space: nowrap;
             flex-shrink: 0;
         }
         
-        .now-time-checkbox label, .repeat-first-checkbox label {
+        .now-time-checkbox label, 
+        .repeat-first-checkbox label,
+        .input-type-checkbox label,
+        .remove-days-checkbox label { 
             display: flex;
             align-items: center;
             gap: var(--spacing-sm);
             cursor: pointer;
         }
         
-        .now-time-checkbox input[type="checkbox"], 
-        .repeat-first-checkbox input[type="checkbox"] {
+        .now-time-checkbox input[type="checkbox"] {
             transform: scale(1.4);
-            accent-color: var(--accent-red);
+            accent-color: var(--accent-red); /* Kırmızı */
         }
         
-        .now-time-checkbox span, .repeat-first-checkbox span {
+        .repeat-first-checkbox input[type="checkbox"] {
+            transform: scale(1.4);
+            accent-color: var(--accent-red); /* Kırmızı */
+        }
+
+        .input-type-checkbox input[type="checkbox"],
+        .remove-days-checkbox input[type="checkbox"] { 
+            transform: scale(1.4);
+            accent-color: var(--accent-blue); /* Mavi */
+        }
+        
+        .now-time-checkbox span, 
+        .repeat-first-checkbox span,
+        .input-type-checkbox span,
+        .remove-days-checkbox span { 
             font-size: var(--font-size-md);
             color: var(--text-primary);
         }
 
         /* Ortak Buton Stilleri */
-        .create-button, #copySqlBtn {
+        .create-button, #copySqlBtn, #modalOkBtn {
             border: none;
             border-radius: var(--border-radius);
             cursor: pointer;
@@ -274,7 +301,7 @@
             color: white;
             box-shadow: 0 4px 10px #2b517e;
             margin-top: 30px;
-            margin-left: 9cm;
+            margin-left: 9cm; /* Merkezleme için geçici çözüm, responsive'de değişiyor */
         }
         
         .create-button:hover {
@@ -308,7 +335,6 @@
         }
         
         #sqlOutput {
-            /* max-height: 250px; */ /* Kaldırıldı, içeriğe göre büyüyecek */
             padding-top: var(--spacing-sm);
             width: 100%;
             box-sizing: border-box;
@@ -318,9 +344,8 @@
             overflow-wrap: break-word;
             text-align: left;
             padding-left: var(--spacing-sm);
-            /* Çıktı alanının içeriğe göre büyümesini sağlamak için */
-            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
-            flex-grow: 1; /* Konteynerin içinde esnek büyüme */
+            overflow-y: auto;
+            flex-grow: 1;
         }
 
         /* Kopyala Butonu */
@@ -347,6 +372,64 @@
             box-shadow: inset 0 1px 3px var(--shadow-medium);
         }
 
+        /* Modal Stilleri */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Varsayılan olarak gizli */
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: var(--spacing-xxl);
+            border-radius: var(--border-radius-large);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+            border: 1px solid var(--border-color);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .modal-title {
+            color: var(--accent-red);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-md);
+            font-weight: 600;
+        }
+
+        .modal-message {
+            font-size: var(--font-size-md);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.5;
+        }
+
+        #modalOkBtn {
+            background-color: var(--accent-blue);
+            color: white;
+            padding: 10px 25px;
+            font-size: var(--font-size-lg);
+        }
+
+        #modalOkBtn:hover {
+            background-color: var(--accent-blue-light);
+            transform: translateY(-2px);
+        }
+        
+        #modalOkBtn:active {
+            transform: translateY(0);
+            background-color: var(--accent-blue-active);
+        }
+
+
         /* Responsive Tasarım */
         @media (max-width: 768px) {
             .container, #sqlOutputContainer {
@@ -365,7 +448,7 @@
             }
             
             .checkbox-container, .column-label-group, 
-            .now-time-checkbox, .repeat-first-checkbox {
+            .content-and-options-wrapper { /* Yeni sarmalayıcı da responsive kurallara uyacak */
                 margin-right: 0;
                 margin-bottom: var(--spacing-sm);
                 width: 100%;
@@ -379,15 +462,22 @@
                 margin-bottom: var(--spacing-md);
             }
             
-            .now-time-checkbox, .repeat-first-checkbox {
-                margin-left: 0;
-                justify-content: flex-start;
+            .content-and-options-wrapper {
+                flex-direction: column; /* Küçük ekranlarda yine dikey sırala */
+                align-items: stretch;
+            }
+
+            .checkbox-options-group { /* Bu grup zaten dikey sıralı olduğu için ek bir flex-direction gerekmez */
+                margin-left: 0; /* Küçük ekranda margin-left'i sıfırla */
+                align-items: flex-start; /* Checkbox'ları sola hizala */
+                padding-top: var(--spacing-sm); /* Responsive'de de boşluk bırak */
             }
             
             .create-button {
                 width: 100%;
                 padding: 14px var(--spacing-lg);
                 font-size: 1.1em;
+                margin-left: 0; /* Responsive'de merkezlemeyi kaldır */
             }
 
             .platesub {
@@ -405,10 +495,9 @@
                 height: 2px;
                 background-color: var(--accent-red);
                 margin: 20px 0;
-                width: 100%;         /* Tam genişlikte çizgi */
-                align-self: stretch; /* Flex konteynerde tam genişlik */
+                width: 100%;
+                align-self: stretch;
             }
-
 
             #copySqlBtn {
                 position: static;
@@ -423,82 +512,11 @@
             }
 
         }
-
-        /* New CSS for Mode Switch */
-        .mode-switch-container {
-            margin-bottom: 20px;
-            text-align: center;
-            padding: var(--spacing-md);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            background-color: var(--bg-tertiary);
-            display: flex;
-            justify-content: center;
-            gap: 30px; /* Space between radio buttons */
-            box-shadow: inset 0 1px 3px var(--shadow-light);
-        }
-
-        .mode-switch-container label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: var(--font-size-lg);
-            gap: 10px; /* Space between radio input and text */
-            transition: color var(--transition-normal) ease;
-        }
-
-        .mode-switch-container label:hover {
-            color: var(--accent-blue);
-        }
-
-        .mode-switch-container input[type="radio"] {
-            /* Basic styling for radio buttons */
-            appearance: none; /* Remove default radio button styles */
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            background-color: var(--bg-secondary);
-            position: relative;
-            cursor: pointer;
-            outline: none;
-            transition: border-color var(--transition-normal) ease, background-color var(--transition-normal) ease;
-        }
-
-        .mode-switch-container input[type="radio"]:checked {
-            border-color: var(--accent-blue);
-            background-color: var(--accent-blue);
-        }
-
-        .mode-switch-container input[type="radio"]:checked::before {
-            content: '';
-            display: block;
-            width: 10px;
-            height: 10px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
     </style>
 </head>
 <body>
 
-    <h1 class="platesub">Whitelist Inserter/Deleter</h1>
-
-    <div class="mode-switch-container">
-        <label>
-            <input type="radio" id="insertMode" name="mode" value="insert" checked> Insert Mode
-        </label>
-        <label>
-            <input type="radio" id="deleteMode" name="mode" value="delete"> Delete Mode
-        </label>
-    </div>
+    <h1 class="platesub">Whitelist Inserter</h1>
 
 <div class="container">
     <div class="info-notes">
@@ -516,9 +534,11 @@
             <div class="column-name">plate</div>
             <div class="column-description">(Plaka)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="plate_text" placeholder="Örn: 34GTY132"></textarea>
-        </div>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="plate_text" placeholder="Örn: 34GTY132"></textarea>
+            </div>
+            </div>
     </div>
     <div class="item-row" style="padding-top: 10px; border-top: 2px solid #4d94ff;">
         <div class="checkbox-container">
@@ -528,14 +548,18 @@
             <div class="column-name">created_by_id</div>
             <div class="column-description">(Oluşturan kişi ID)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="created_by_id_text" placeholder="Örn: 10675"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="created_by_id_repeat_check" checked>
-                <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="created_by_id_text" placeholder="Örn: 10675"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="created_by_id_repeat_check" checked>
+                        <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -547,14 +571,18 @@
             <div class="column-name">park_id</div>
             <div class="column-description">(Parkın ID'si)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="park_id_text" placeholder="Örn: 77"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="park_id_repeat_check" checked>
-                <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="park_id_text" placeholder="Örn: 77"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="park_id_repeat_check" checked>
+                        <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -566,14 +594,18 @@
             <div class="column-name">created_at</div>
             <div class="column-description"></div>
         </div>
-        <div class="text-area-container">
-            <textarea id="created_at_text" placeholder="YYYY-MM-DD HH:MM:SS formatında giriniz..."></textarea>
-        </div>
-        <div class="now-time-checkbox">
-            <label>
-                <input type="checkbox" id="created_at_now_check">
-                <span>Şimdiki Zaman</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="created_at_text" placeholder="YYYY-MM-DD HH:MM:SS formatında giriniz..."></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="now-time-checkbox">
+                    <label>
+                        <input type="checkbox" id="created_at_now_check">
+                        <span>Şimdiki Zaman</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -585,14 +617,24 @@
             <div class="column-name">expiry_at</div>
             <div class="column-description">(Geçerlilik Tarihi)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="expiry_at_text" placeholder="YYYY-MM-DD HH:MM:SS formatında giriniz..."></textarea>
-        </div>
-        <div class="now-time-checkbox">
-            <label>
-                <input type="checkbox" id="expiry_at_now_check">
-                <span>Şimdiki Zaman</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="expiry_at_text" placeholder="YYYY-MM-DD HH:MM:SS formatında giriniz..."></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="now-time-checkbox">
+                    <label>
+                        <input type="checkbox" id="expiry_at_now_check">
+                        <span>Şimdiki Zaman</span>
+                    </label>
+                </div>
+                <div class="remove-days-checkbox">
+                    <label>
+                        <input type="checkbox" id="expiry_at_remove_days_check">
+                        <span>SİL (kalan gün sayısı:x)</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -604,13 +646,17 @@
             <div class="column-name">name</div>
             <div class="column-description">(Müşteri Adı)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="name_text" placeholder="Örn: EMRE"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="name_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="name_text" placeholder="Örn: EMRE"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="name_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -622,13 +668,17 @@
             <div class="column-name">company_name</div>
             <div class="column-description">(Şirket Adı)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="company_name_text" placeholder="Örn: 4B PLAZA"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="company_name_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="company_name_text" placeholder="Örn: 4B PLAZA"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="company_name_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
     <div class="item-row">
@@ -639,13 +689,17 @@
             <div class="column-name">description</div>
             <div class="column-description">(Açıklama)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="description_text" placeholder="Örn: Malik"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="description_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="description_text" placeholder="Örn: Malik"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="description_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -657,13 +711,23 @@
             <div class="column-name">payment_status</div>
             <div class="column-description">(Ödeme Durumu)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="payment_status_text" placeholder="Örn: Ücretsiz: 1 || Ödenmiş: 2 || Ödememiş: 3"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="payment_status_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="payment_status_text" placeholder="Örn: Ücretsiz: 1 || Ödenmiş: 2 || Ödememiş: 3"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="payment_status_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+                <div class="input-type-checkbox">
+                    <label>
+                        <input type="checkbox" id="payment_status_input_type_check">
+                        <span>Giriş tipi: 1,2,3</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -675,13 +739,17 @@
             <div class="column-name">phone</div>
             <div class="column-description">(Telefon Numarası)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="phone_text" placeholder="Örn: 5551234567"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="phone_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="phone_text" placeholder="Örn: 5551234567"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="phone_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -693,13 +761,17 @@
             <div class="column-name">payment_amount</div>
             <div class="column-description">(Ödeme Miktarı)</div>
         </div>
-        <div class="text-area-container">
-            <textarea id="payment_amount_text" placeholder="Örn: 15.75"></textarea>
-        </div>
-        <div class="repeat-first-checkbox">
-            <label>
-                <input type="checkbox" id="payment_amount_repeat_check"> <span>İlk Satırı Tekrarla</span>
-            </label>
+        <div class="content-and-options-wrapper">
+            <div class="text-area-container">
+                <textarea id="payment_amount_text" placeholder="Örn: 15.75"></textarea>
+            </div>
+            <div class="checkbox-options-group">
+                <div class="repeat-first-checkbox">
+                    <label>
+                        <input type="checkbox" id="payment_amount_repeat_check"> <span>İlk Satırı Tekrarla</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -711,17 +783,24 @@
     <pre id="sqlOutput">Veri giriniz.</pre>
 </div>
 
+<div id="errorModalOverlay" class="modal-overlay">
+    <div class="modal-content">
+        <h3 id="modalTitle" class="modal-title">Hata!</h3>
+        <p id="modalMessage" class="modal-message"></p>
+        <button id="modalOkBtn">Tamam</button>
+    </div>
+</div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const createButton = document.getElementById('createButton');
             const sqlOutput = document.getElementById('sqlOutput');
             const copySqlBtn = document.getElementById('copySqlBtn');
+            const errorModalOverlay = document.getElementById('errorModalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalOkBtn = document.getElementById('modalOkBtn');
 
-            // NEW: Mode switch elements
-            const insertModeRadio = document.getElementById('insertMode');
-            const deleteModeRadio = document.getElementById('deleteMode');
-
-            let currentMode = 'insert'; // Default mode
 
             // Kopyala butonu işlevi
             if (copySqlBtn) {
@@ -747,21 +826,16 @@
                 created_at: { checkboxId: 'created_at_check', textareaId: 'created_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: true },
                 created_by_id: { checkboxId: 'created_by_id_check', textareaId: 'created_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: true },
                 park_id: { checkboxId: 'park_id_check', textareaId: 'park_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 77', mandatory: true },
-                plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true, placeholder: 'Örn: 34GTY132', mandatory: true }, // Plate her zaman zorunlu ve tikli
+                plate: { checkboxId: 'plate_check', textareaId: 'plate_text', type: 'varchar(255)', multiLine: true, placeholder: 'Örn: 34GTY132', mandatory: true }, 
                 
                 // Zorunlu olmayan alanlar (varsayılan olarak unchecked)
-                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, 
+                expiry_at: { checkboxId: 'expiry_at_check', textareaId: 'expiry_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false, hasRemoveDaysOption: true }, 
                 name: { checkboxId: 'name_check', textareaId: 'name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: EMRE', mandatory: false }, 
                 company_name: { checkboxId: 'company_name_check', textareaId: 'company_name_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 4B PLAZA', mandatory: false }, 
                 description: { checkboxId: 'description_check', textareaId: 'description_text', type: 'text', hasRepeatOption: true, placeholder: 'Örn: Malik', mandatory: false }, 
-                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 1 (Ödendi), 0 (Ödenmedi)', mandatory: false }, 
+                payment_status: { checkboxId: 'payment_status_check', textareaId: 'payment_status_text', type: 'int', hasRepeatOption: true, hasInputTypeOption: true, placeholder: 'Örn: Ücretsiz: 1 || Ödenmiş: 2 || Ödememiş: 3', mandatory: false }, 
                 phone: { checkboxId: 'phone_check', textareaId: 'phone_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: 5551234567', mandatory: false }, 
                 payment_amount: { checkboxId: 'payment_amount_check', textareaId: 'payment_amount_text', type: 'double(11,2)', hasRepeatOption: true, placeholder: 'Örn: 15.75', mandatory: false }, 
-                
-                // Güncel kodda olmayan ancak fieldsConfig'de tanımlı olabilecekler (örnek olarak bırakıldı)
-                updated_at: { checkboxId: 'updated_at_check', textareaId: 'updated_at_text', type: 'datetime', special: 'now_datetime', placeholder: 'YYYY-MM-DD HH:MM:SS formatında giriniz...', mandatory: false }, 
-                updated_by_id: { checkboxId: 'updated_by_id_check', textareaId: 'updated_by_id_text', type: 'int', hasRepeatOption: true, placeholder: 'Örn: 10675', mandatory: false }, 
-                company: { checkboxId: 'company_check', textareaId: 'company_text', type: 'varchar(255)', hasRepeatOption: true, placeholder: 'Örn: A.Ş.', mandatory: false } 
             };
 
             // SQL string değerlerini kaçış karakterleriyle düzenleme fonksiyonu
@@ -774,16 +848,25 @@
 
             // Tarih formatı doğrulama regex'i (YYYY-MM-DD HH:MM:SS)
             const datetimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+            // Türk Plaka formatı doğrulama regex'i (Örn: 34ABC123, 06AB1234)
+            const plateRegex = /^(?:[0-8][0-9]|[0-9]{2})[A-Z]{1,3}\d{2,4}$/i; 
 
             // Hata mesajını gösteren ve ilgili alana kaydıran yardımcı fonksiyon
             function showErrorAndScroll(message, element) {
-                sqlOutput.textContent = `Hata: ${message}`;
-                sqlOutput.style.color = 'var(--accent-red)';
+                modalTitle.textContent = "Hata!";
+                modalMessage.textContent = message;
+                errorModalOverlay.style.display = 'flex'; // Modalı göster
+
                 if (element) {
                     element.classList.add('error-border');
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
+
+            // Modalı gizle
+            modalOkBtn.addEventListener('click', () => {
+                errorModalOverlay.style.display = 'none';
+            });
 
             // Tüm textarea'lardan hata kenarlıklarını temizleyen fonksiyon
             function clearAllErrorBorders() {
@@ -795,85 +878,8 @@
                 }
             }
 
-            // Function to update UI based on mode
-            function updateUIMode() {
-                if (currentMode === 'insert') {
-                    // Show insert-specific elements, hide delete-specific ones if any
-                    // Adjust mandatory fields or repeat options as needed for insert mode
-                    // (Current setup is already for insert, so minimal changes here)
-                    document.querySelector('.create-button').textContent = "SQL Sorgusu Oluştur";
-                    // Re-enable/disable checkboxes and repeat options based on insert config
-                    for (const fieldName in fieldsConfig) {
-                        const config = fieldsConfig[fieldName];
-                        const checkbox = document.getElementById(config.checkboxId);
-                        const repeatCheckbox = config.hasRepeatOption ? document.getElementById(fieldName + '_repeat_check') : null;
-                        const nowCheckbox = config.special === 'now_datetime' ? document.getElementById(fieldName + '_now_check') : null;
-
-                        if (checkbox) {
-                            checkbox.checked = config.mandatory;
-                            checkbox.disabled = config.mandatory;
-                        }
-                        if (repeatCheckbox) {
-                            repeatCheckbox.checked = (fieldName === 'created_by_id' || fieldName === 'park_id'); // Default for insert
-                            repeatCheckbox.closest('.repeat-first-checkbox').style.display = 'flex'; // Show repeat option
-                        }
-                        if (nowCheckbox) {
-                            nowCheckbox.checked = false;
-                            nowCheckbox.closest('.now-time-checkbox').style.display = 'flex'; // Show now option
-                        }
-                    }
-                } else if (currentMode === 'delete') {
-                    // Hide insert-specific elements (e.g., repeat options, now time for certain fields)
-                    // Show delete-specific elements if any (e.g., "delete by similar value" checkbox)
-                    document.querySelector('.create-button').textContent = "SQL Silme Sorgusu Oluştur";
-                    // For delete mode, all checkboxes should be enabled and unchecked by default
-                    // And repeat/now options might be hidden or behave differently
-                    for (const fieldName in fieldsConfig) {
-                        const config = fieldsConfig[fieldName];
-                        const checkbox = document.getElementById(config.checkboxId);
-                        const repeatCheckbox = config.hasRepeatOption ? document.getElementById(fieldName + '_repeat_check') : null;
-                        const nowCheckbox = config.special === 'now_datetime' ? document.getElementById(fieldName + '_now_check') : null;
-
-                        if (checkbox) {
-                            checkbox.checked = false; // All unchecked by default for delete
-                            checkbox.disabled = false; // All enabled for delete criteria selection
-                        }
-                        if (repeatCheckbox) {
-                            repeatCheckbox.closest('.repeat-first-checkbox').style.display = 'none'; // Hide repeat for delete
-                        }
-                        if (nowCheckbox) {
-                            nowCheckbox.closest('.now-time-checkbox').style.display = 'none'; // Hide now for delete
-                        }
-                    }
-                    // Plate should not be mandatory for delete, user chooses criteria
-                    document.getElementById('plate_check').checked = false;
-                    document.getElementById('plate_check').disabled = false;
-                }
-                sqlOutput.textContent = "Veri giriniz."; // Reset output
-                sqlOutput.style.color = 'var(--text-muted)';
-                clearAllErrorBorders();
-            }
-
-            // Event listeners for mode switch
-            if (insertModeRadio) {
-                insertModeRadio.addEventListener('change', () => {
-                    currentMode = 'insert';
-                    updateUIMode();
-                });
-            }
-            if (deleteModeRadio) {
-                deleteModeRadio.addEventListener('change', () => {
-                    currentMode = 'delete';
-                    updateUIMode();
-                });
-            }
-
-            // Existing generateInsertSql function (extracted from createButton logic)
+            // generateInsertSql fonksiyonu
             function generateInsertSql() {
-                // --- Your existing INSERT logic goes here ---
-                // This is the code currently inside your createButton.addEventListener for the 'insert' mode.
-                // Make sure it returns the generated SQL string or null/error message.
-
                 clearAllErrorBorders();
                 sqlOutput.textContent = "Veri giriniz.";
                 sqlOutput.style.color = 'var(--text-muted)';
@@ -883,6 +889,13 @@
                 let plateLines = [];
                 let hasValidationError = false;
                 let firstErrorElement = null;
+
+                // Python betiğindeki dönüşüm sözlüğü
+                const donusum_sozlugu = {
+                    "ücretsiz": "1",
+                    "ödenmiş": "2",
+                    "ödememiş": "3"
+                };
 
                 const plateTextarea = document.getElementById(fieldsConfig.plate.textareaId);
                 let rawPlateLines = plateTextarea.value.split(/\r?\n/).map(line => line.trim());
@@ -895,6 +908,20 @@
                     showErrorAndScroll("Plaka alanı zorunludur ve boş bırakılamaz.", plateTextarea);
                     return null; // Return null to indicate error
                 }
+                
+                // Plaka formatı doğrulama
+                for (let i = 0; i < rawPlateLines.length; i++) {
+                    const plate = rawPlateLines[i];
+                    if (plate === '') { // Plaka satırı boş olmamalı
+                        showErrorAndScroll(`Plaka alanı (satır ${i + 1}) zorunludur ve boş bırakılamaz.`, plateTextarea);
+                        return null;
+                    }
+                    if (!plateRegex.test(plate)) {
+                        showErrorAndScroll(`Plaka formatı geçersiz (satır ${i + 1}): '${plate}'. Lütfen doğru formatta giriniz (örn: 34ABC123).`, plateTextarea);
+                        return null; 
+                    }
+                }
+
                 plateLines = rawPlateLines;
                 const plateLinesCount = plateLines.length;
 
@@ -907,73 +934,164 @@
                         const textarea = document.getElementById(config.textareaId);
                         const repeatCheckbox = config.hasRepeatOption ? document.getElementById(fieldName + '_repeat_check') : null;
                         const nowCheckbox = config.special === 'now_datetime' ? document.getElementById(fieldName + '_now_check') : null;
+                        const inputTypeCheckbox = config.hasInputTypeOption ? document.getElementById(fieldName + '_input_type_check') : null;
+                        const removeDaysCheckbox = config.hasRemoveDaysOption ? document.getElementById(fieldName + '_remove_days_check') : null;
+
 
                         let valueToProcess = null;
                         let isFieldChecked = checkbox && checkbox.checked;
-                        let isMandatory = config.mandatory;
-                        let isSpecialOptionChecked = (nowCheckbox && nowCheckbox.checked) || (repeatCheckbox && repeatCheckbox.checked);
-                        let isSqlFunction = false;
+                        let isSqlFunction = false; // Flag to indicate if the value is an SQL function (like NOW())
 
                         if (isFieldChecked) {
                             columnsToInclude.add(fieldName);
 
-                            let currentLineValue = '';
-                            if (fieldName === 'plate') {
-                                valueToProcess = plateLines[i];
-                                if (valueToProcess === '') {
-                                    showErrorAndScroll(`Plaka alanı (satır ${i + 1}) zorunludur ve boş bırakılamaz.`, plateTextarea);
-                                    hasValidationError = true;
-                                    if (!firstErrorElement) firstErrorElement = plateTextarea;
-                                    break;
-                                }
-                            } else if (isSpecialOptionChecked) {
-                                if (nowCheckbox && nowCheckbox.checked) {
-                                    valueToProcess = 'NOW()';
-                                    isSqlFunction = true;
-                                } else if (repeatCheckbox && repeatCheckbox.checked) {
-                                    const firstLineValueRaw = textarea.value.split(/\r?\n/)[0]?.trim() || '';
-                                    const firstLineValue = (firstLineValueRaw === '' || firstLineValueRaw === '-') ? '' : firstLineValueRaw;
+                            let effectiveValueForThisRow = ''; // Initialize
 
-                                    if (firstLineValue === '') {
-                                        showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı için 'İlk Satırı Tekrarla' seçeneği işaretli ancak ilk satır boş bırakılamaz.`, textarea);
-                                        hasValidationError = true;
-                                        if (!firstErrorElement) firstErrorElement = textarea;
-                                        break;
-                                    }
-                                    valueToProcess = firstLineValue;
+                            // First, determine the effective value for this row (from textarea or repeat option)
+                            if (fieldName === 'plate') {
+                                effectiveValueForThisRow = plateLines[i];
+                            } else if (nowCheckbox && nowCheckbox.checked) {
+                                valueToProcess = 'NOW()'; // If 'Şimdiki Zaman' is checked, it overrides other input
+                                isSqlFunction = true;
+                            } else if (repeatCheckbox && repeatCheckbox.checked) {
+                                const firstLineValueRaw = textarea.value.split(/\r?\n/)[0]?.trim() || '';
+                                effectiveValueForThisRow = (firstLineValueRaw === '' || firstLineValueRaw === '-') ? '' : firstLineValueRaw;
+                                if (effectiveValueForThisRow === '') {
+                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı için 'İlk Satırı Tekrarla' seçeneği işaretli ancak ilk satır boş bırakılamaz.`, textarea);
+                                    hasValidationError = true;
+                                    if (!firstErrorElement) firstErrorElement = textarea;
+                                    break; // Exit inner loop
                                 }
                             } else {
                                 const allLines = textarea.value.split(/\r?\n/).map(line => line.trim());
-                                let effectiveValueForThisRow = '';
-
                                 if (allLines.length === 1) {
                                     effectiveValueForThisRow = allLines[0];
                                 } else if (allLines.length > 1 && allLines.length !== plateLinesCount) {
                                     showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı için girilen satır sayısı (${allLines.length}), plaka satır sayısı (${plateLinesCount}) ile eşleşmiyor.`, textarea);
                                     hasValidationError = true;
                                     if (!firstErrorElement) firstErrorElement = textarea;
-                                    break;
+                                    break; // Exit inner loop
                                 } else {
                                     effectiveValueForThisRow = allLines[i] || '';
                                 }
+                            }
 
-                                if (effectiveValueForThisRow === '-' || effectiveValueForThisRow === '') {
-                                    effectiveValueForThisRow = '';
+                            if (hasValidationError) { // If any validation failed while determining effectiveValueForThisRow, break outer loop
+                                break;
+                            }
+
+                            // Now, process the effectiveValueForThisRow based on field specific rules
+                            if (isSqlFunction) {
+                                // valueToProcess is already set to 'NOW()' or similar
+                            } else if (fieldName === 'created_at') {
+                                // Specific validation and conversion for created_at
+                                if (effectiveValueForThisRow === '') {
+                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz. 'Şimdiki Zaman' seçeneğini işaretleyebilir veya geçerli bir tarih giriniz.`, textarea);
+                                    hasValidationError = true;
+                                    if (!firstErrorElement) firstErrorElement = textarea;
+                                    break;
+                                } else if (effectiveValueForThisRow.toLowerCase() === 'limitsiz') {
+                                    valueToProcess = 'NULL';
+                                } else {
+                                    const yyyymmdd_hhmmss_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+                                    const ddmmyyyy_hhmmss_regex = /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/;
+
+                                    if (yyyymmdd_hhmmss_regex.test(effectiveValueForThisRow)) {
+                                        valueToProcess = effectiveValueForThisRow;
+                                    } else if (ddmmyyyy_hhmmss_regex.test(effectiveValueForThisRow)) {
+                                        // Convert DD-MM-YYYY HH:MM:SS to YYYY-MM-DD HH:MM:SS
+                                        const parts = effectiveValueForThisRow.split(/[- :]/); // Split by '-', ' ', ':'
+                                        const day = parts[0];
+                                        const month = parts[1];
+                                        const year = parts[2];
+                                        const hour = parts[3];
+                                        const minute = parts[4];
+                                        const second = parts[5];
+                                        valueToProcess = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+                                    } else {
+                                        showErrorAndScroll(`'${config.placeholder.split(':')[0]}' alanı için geçersiz tarih/saat formatı: '${effectiveValueForThisRow}'. Desteklenen formatlar YYYY-MM-DD HH:MM:SS veya DD-MM-YYYY HH:MM:SS'dir.`, textarea);
+                                        hasValidationError = true;
+                                        if (!firstErrorElement) firstErrorElement = textarea;
+                                        break;
+                                    }
+                                }
+                            } else if (fieldName === 'expiry_at') {
+                                // Specific validation and conversion for expiry_at (similar to created_at but can be empty/NULL)
+                                let processedEffectiveValue = effectiveValueForThisRow;
+                                if (removeDaysCheckbox && removeDaysCheckbox.checked) {
+                                    processedEffectiveValue = processedEffectiveValue.replace(/\s*Kalan gün:\s*\d+/i, '').trim();
                                 }
 
-                                if (fieldName === 'created_at' && !nowCheckbox.checked && effectiveValueForThisRow === '') {
-                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz.`, textarea);
-                                    hasValidationError = true;
-                                    if (!firstErrorElement) firstErrorElement = textarea;
-                                    break;
-                                } else if (config.type === 'datetime' && effectiveValueForThisRow.toLowerCase() === 'limitsiz') {
+                                if (processedEffectiveValue === '' || processedEffectiveValue === '-') {
                                     valueToProcess = 'NULL';
-                                } else if (isMandatory && effectiveValueForThisRow === '') {
-                                    showErrorAndScroll(`${config.placeholder.split(':')[0]} alanı zorunludur ve boş bırakılamaz.`, textarea);
-                                    hasValidationError = true;
-                                    if (!firstErrorElement) firstErrorElement = textarea;
-                                    break;
-                                } else if (!isMandatory && effectiveValueForThisRow === '') {
+                                } else if (processedEffectiveValue.toLowerCase() === 'limitsiz') {
+                                    valueToProcess = 'NULL';
+                                } else {
+                                    const yyyymmdd_hhmmss_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+                                    const ddmmyyyy_hhmmss_regex = /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/;
+
+                                    if (yyyymmdd_hhmmss_regex.test(processedEffectiveValue)) {
+                                        valueToProcess = processedEffectiveValue;
+                                    } else if (ddmmyyyy_hhmmss_regex.test(processedEffectiveValue)) {
+                                        const parts = processedEffectiveValue.split(/[- :]/);
+                                        const day = parts[0];
+                                        const month = parts[1];
+                                        const year = parts[2];
+                                        const hour = parts[3];
+                                        const minute = parts[4];
+                                        const second = parts[5];
+                                        valueToProcess = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+                                    } else {
+                                        showErrorAndScroll(`'${config.placeholder.split(':')[0]}' alanı için geçersiz tarih/saat formatı: '${processedEffectiveValue}'. Desteklenen formatlar YYYY-MM-DD HH:MM:SS veya DD-MM-YYYY HH:MM:SS'dir.`, textarea);
+                                        hasValidationError = true;
+                                        if (!firstErrorElement) firstErrorElement = textarea;
+                                        break;
+                                    }
+                                }
+                            } else if (fieldName === 'description' && isFieldChecked) {
+                                // Description special handling
+                                if (effectiveValueForThisRow === 'NULL' || effectiveValueForThisRow === '') {
+                                    valueToProcess = `DATE_FORMAT(NOW(), '%Y-%m-%d')`;
+                                } else {
+                                    valueToProcess = `CONCAT('${escapeSqlString(effectiveValueForThisRow)} ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
+                                }
+                                isSqlFunction = true;
+                            } else if (fieldName === 'payment_status') {
+                                if (inputTypeCheckbox && inputTypeCheckbox.checked) {
+                                    // Eğer payment_status_input_type_check tikliyse, valueToProcess ne olursa olsun 1, 2 veya 3 olmalı
+                                    const validPaymentStatusValues = ['1', '2', '3'];
+                                    if (effectiveValueForThisRow === null || !validPaymentStatusValues.includes(String(effectiveValueForThisRow))) {
+                                        showErrorAndScroll(`'Giriş tipi: 1,2,3' seçeneği işaretli olduğundan 'payment_status' alanı 1, 2 veya 3 olmalıdır. Girilen değer: '${effectiveValueForThisRow}'.`, textarea);
+                                        hasValidationError = true;
+                                        if (!firstErrorElement) firstErrorElement = textarea;
+                                        break;
+                                    }
+                                    valueToProcess = effectiveValueForThisRow; // Use as is if valid number
+                                } else {
+                                    // Eğer payment_status_input_type_check tikli DEĞİLSE, dönüşüm yap
+                                    let convertedValue = effectiveValueForThisRow;
+                                    if (convertedValue === '' || convertedValue === '-') {
+                                        convertedValue = 'NULL';
+                                    } else {
+                                        const lowerCaseValue = String(convertedValue).toLowerCase();
+                                        if (donusum_sozlugu[lowerCaseValue]) {
+                                            convertedValue = donusum_sozlugu[lowerCaseValue];
+                                        } else {
+                                            // Dönüşüm sözlüğünde yoksa ve 1, 2, 3 de değilse hata ver
+                                            const isNumericValue = ['1', '2', '3'].includes(String(convertedValue));
+                                            if (!isNumericValue) {
+                                                showErrorAndScroll(`'payment_status' alanı için 'Giriş tipi: 1,2,3' seçeneği tikli DEĞİL ise sadece 'ücretsiz', 'ödenmiş', 'ödememiş' metinleri veya 1, 2, 3 sayıları kabul edilir. Geçersiz değer: '${effectiveValueForThisRow}'.`, textarea);
+                                                hasValidationError = true;
+                                                if (!firstErrorElement) firstErrorElement = textarea;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    valueToProcess = convertedValue;
+                                }
+                            } else {
+                                // General handling for other fields that are not special or have special options checked
+                                if (effectiveValueForThisRow === '-' || effectiveValueForThisRow === '') {
                                     valueToProcess = 'NULL';
                                 } else {
                                     valueToProcess = effectiveValueForThisRow;
@@ -984,18 +1102,10 @@
                                 textarea.classList.remove('error-border');
                             }
 
-                            if (fieldName === 'description' && isFieldChecked) {
-                                if (valueToProcess === 'NULL' || valueToProcess === '') {
-                                    valueToProcess = `DATE_FORMAT(NOW(), '%Y-%m-%d')`;
-                                } else {
-                                    valueToProcess = `CONCAT('${escapeSqlString(valueToProcess)} ', DATE_FORMAT(NOW(), '%Y-%m-%d'))`;
-                                }
-                                isSqlFunction = true;
-                            }
-
+                            // Final type conversion before adding to rowData
                             if (!isSqlFunction) {
                                 if (valueToProcess === 'NULL') {
-                                    // Do nothing
+                                    // Do nothing, already 'NULL'
                                 } else if (config.type.startsWith('varchar') || config.type === 'text' || config.type === 'datetime') {
                                     valueToProcess = `'${escapeSqlString(valueToProcess)}'`;
                                 } else if (config.type.startsWith('int')) {
@@ -1048,114 +1158,14 @@
                 return `INSERT INTO default_parking_whitelist\n\t(${finalSortedColumns.join(', ')})\nVALUES\n\t${allValuesStrings.join(',\n\t')};`;
             }
 
-            // NEW: Function to generate DELETE SQL
-            function generateDeleteSql() {
-                clearAllErrorBorders(); // Clear previous errors
-                let whereClauses = [];
-                let hasError = false;
-                let firstErrorElement = null;
-
-                // Iterate through all fields to see which are checked and have values
-                for (const fieldName in fieldsConfig) {
-                    const config = fieldsConfig[fieldName];
-                    const checkbox = document.getElementById(config.checkboxId);
-                    const textarea = document.getElementById(config.textareaId);
-
-                    if (checkbox && checkbox.checked) {
-                        const rawValues = textarea.value.split(/\r?\n/).map(line => line.trim()).filter(line => line !== '' && line !== '-');
-
-                        if (rawValues.length === 0) {
-                            showErrorAndScroll(`Silme işlemi için seçilen '${config.placeholder.split(':')[0]}' alanı boş bırakılamaz.`, textarea);
-                            hasError = true;
-                            if (!firstErrorElement) firstErrorElement = textarea;
-                            break;
-                        }
-
-                        // Handle "similar values" (using LIKE for strings, IN for multiple exact matches)
-                        if (config.type.startsWith('varchar') || config.type === 'text') {
-                            // For string types, consider if "similar" means LIKE or IN
-                            // For simplicity, let's assume multiple lines mean OR conditions with LIKE
-                            const likeConditions = rawValues.map(val => `${fieldName} LIKE '%${escapeSqlString(val)}%'`);
-                            whereClauses.push(`(${likeConditions.join(' OR ')})`);
-                        } else {
-                            // For numeric or datetime types, exact match is more common, use IN for multiple values
-                            const values = rawValues.map(val => {
-                                if (config.type.startsWith('int')) {
-                                    const num = parseInt(val, 10);
-                                    return isNaN(num) ? 'NULL' : num;
-                                } else if (config.type.startsWith('double')) {
-                                    const num = parseFloat(val.replace(',', '.'));
-                                    return isNaN(num) ? 'NULL' : num;
-                                } else if (config.type === 'datetime') {
-                                    if (val.toLowerCase() === 'limitsiz') {
-                                        return 'NULL';
-                                    }
-                                    // Basic datetime format validation, can be more robust
-                                    if (!datetimeRegex.test(val)) {
-                                        showErrorAndScroll(`'${config.placeholder.split(':')[0]}' alanı için geçersiz tarih/saat formatı: '${val}'. YYYY-MM-DD HH:MM:SS formatında giriniz.`, textarea);
-                                        hasError = true;
-                                        if (!firstErrorElement) firstErrorElement = textarea;
-                                        return; // Stop processing this field
-                                    }
-                                    return `'${escapeSqlString(val)}'`;
-                                }
-                                return `'${escapeSqlString(val)}'`; // Fallback for other types
-                            }).filter(val => val !== undefined); // Filter out undefined values from validation errors
-
-                            if (hasError) break; // If a format error occurred, stop
-
-                            if (values.length > 0) {
-                                // Handle NULL specifically
-                                const nonNullValues = values.filter(v => v !== 'NULL');
-                                const nullCount = values.filter(v => v === 'NULL').length;
-
-                                let fieldConditions = [];
-                                if (nonNullValues.length > 0) {
-                                    fieldConditions.push(`${fieldName} IN (${nonNullValues.join(', ')})`);
-                                }
-                                if (nullCount > 0) {
-                                    fieldConditions.push(`${fieldName} IS NULL`);
-                                }
-                                if (fieldConditions.length > 0) {
-                                     whereClauses.push(`(${fieldConditions.join(' OR ')})`);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (hasError) {
-                    return null; // Stop if there was a validation error
-                }
-
-                if (whereClauses.length === 0) {
-                    showErrorAndScroll("Silme işlemi için en az bir kriter seçilmeli ve doldurulmalıdır.", null);
-                    return null;
-                }
-
-                return `DELETE FROM default_parking_whitelist\nWHERE\n\t${whereClauses.join('\n\tAND ')};`;
-            }
-
-
             // Main button click handler
             createButton.addEventListener('click', () => {
-                if (currentMode === 'insert') {
-                    const sql = generateInsertSql();
-                    if (sql) {
-                        sqlOutput.textContent = sql;
-                        sqlOutput.style.color = 'var(--text-secondary)';
-                    }
-                } else if (currentMode === 'delete') {
-                    const sql = generateDeleteSql();
-                    if (sql) {
-                        sqlOutput.textContent = sql;
-                        sqlOutput.style.color = 'var(--accent-red)'; // Red color for delete SQL
-                    }
+                const sql = generateInsertSql();
+                if (sql) {
+                    sqlOutput.textContent = sql;
+                    sqlOutput.style.color = 'var(--text-secondary)';
                 }
             });
-
-            // Initialize UI mode on load
-            updateUIMode();
         });
     </script>
 
